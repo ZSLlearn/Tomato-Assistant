@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}天气查询{% endblock %}
+{% block content %}
+<h1>🌤 天气查询</h1>
+<div class="input-group" style="margin-bottom:20px;">
+    <input type="text" id="city-input" placeholder="搜索城市..." style="flex:1;">
+    <button onclick="searchWeather()">查询</button>
+</div>
+<div id="weather-result">
+    <p style="color:var(--text-muted);">输入城市名查询天气</p>
+</div>
+{% endblock %}
+{% block scripts %}<script src="/static/js/weather.js"></script>{% endblock %}

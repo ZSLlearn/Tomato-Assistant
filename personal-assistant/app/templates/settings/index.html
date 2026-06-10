@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}设置{% endblock %}
+{% block content %}
+<h1>⚙️ 设置</h1>
+
+<div class="settings-section">
+    <h3>🤖 AI 助手配置</h3>
+    <p style="font-size:13px;color:var(--text-muted);margin-bottom:8px;">DeepSeek API KEY（用户自行配置）</p>
+    <div class="input-group">
+        <input type="password" id="api-key-input" placeholder="sk-...">
+        <button onclick="toggleKeyVisibility()">👁</button>
+        <button onclick="saveApiKey()">保存</button>
+        <button onclick="testConnection()">测试连接</button>
+    </div>
+    <span id="api-status"></span>
+    <a href="https://platform.deepseek.com/" target="_blank" style="font-size:12px;color:var(--primary);display:block;margin-top:8px;">🔗 如何获取 DeepSeek API KEY？</a>
+</div>
+
+<div class="settings-section">
+    <h3>🌍 偏好设置</h3>
+    <div class="input-group">
+        <label>默认城市：</label>
+        <input type="text" id="default-city" placeholder="北京">
+        <button onclick="saveCity()">保存</button>
+    </div>
+</div>
+
+<div class="settings-section">
+    <h3>ℹ️ 关于</h3>
+    <p style="font-size:13px;color:var(--text-muted);">个人助手 v1.0 | 天气数据：Open-Meteo | AI 驱动：DeepSeek</p>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+    const resp = await api('/settings/api/config');
+    if (resp.data.deepseek_api_key) {
+        document.getElementById('api-key-input').value = resp.data.deepseek_api_key;
+        document.getElementById('api-status').innerHTML = '<span class="api-status ok">✅ 已配置</span>';
+    }
+    if (resp.data.default_city) {
+        document.getElementById('default-city').value = resp.data.default_city;
+    }
+});
+
+function toggleKeyVisibility() {
+    const inp = document.getElementById('api-key-input');
+    inp.type = inp.type === 'password' ? 'text' : 'password';
+}
+
+async function saveApiKey() {
+    const key = document.getElementById('api-key-input').value.trim();
+    if (!key) { showToast('请输入 API KEY', true); return; }
+    if (!key.startsWith('sk-')) { showToast('API KEY 应以 sk- 开头', true); return; }
+    await api('/settings/api/config', 'PUT', { key: 'deepseek_api_key', value: key });
+    document.getElementById('api-status').innerHTML = '<span class="api-status ok">✅ 已保存</span>';
+    showToast('API KEY 已保存');
+}
+
+async function testConnection() {
+    const key = document.getElementById('api-key-input').value.trim();
+    if (!key) { showToast('请先输入 API KEY', true); return; }
+    const statusEl = document.getElementById('api-status');
+    statusEl.innerHTML = '<span class="api-status">⏳ 测试中...</span>';
+    const resp = await api('/ai/test-connection', 'POST', { api_key: key });
+    if (resp.data.ok) {
+        statusEl.innerHTML = '<span class="api-status ok">✅ 连接成功</span>';
+        showToast('连接成功');
+    } else {
+        statusEl.innerHTML = '<span class="api-status fail">❌ 连接失败: ' + resp.message + '</span>';
+        showToast('连接失败', true);
+    }
+}
+
+async function saveCity() {
+    const city = document.getElementById('default-city').value.trim();
+    await api('/settings/api/config', 'PUT', { key: 'default_city', value: city });
+    showToast('已保存');
+}
+</script>
+{% endblock %}

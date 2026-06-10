@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}备忘录{% endblock %}
+{% block content %}
+<h1>📝 备忘录</h1>
+<div style="display:flex;gap:10px;margin-bottom:16px;">
+    <input type="text" id="search-input" placeholder="🔍 搜索笔记..." style="flex:1;padding:10px;border:1px solid var(--border);border-radius:8px;font-size:14px;">
+    <button id="btn-new" onclick="newNote()" style="padding:10px 20px;font-size:14px;font-weight:600;white-space:nowrap;">✏️ 新建笔记</button>
+</div>
+<div class="memo-layout">
+    <div class="memo-list" id="memo-list"></div>
+    <div class="memo-detail" id="memo-detail">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+            <h2 id="memo-title-display">选择笔记</h2>
+            <button id="btn-pin" class="btn-pin" onclick="togglePin()" style="display:none;" title="切换置顶">📌</button>
+        </div>
+        <div id="memo-content-display" style="min-height:100px;"></div>
+    </div>
+</div>
+<form id="memo-form" style="margin-top:16px;flex-direction:column;align-items:stretch;">
+    <div style="display:flex;gap:10px;">
+        <input type="text" id="memo-title" placeholder="笔记标题" style="flex:1;font-size:15px;padding:12px;">
+        <input type="text" id="memo-tags" placeholder="标签,逗号分隔" style="flex:1;padding:12px;">
+        <button type="submit" style="padding:12px 24px;font-size:14px;font-weight:600;">💾 保存</button>
+    </div>
+    <textarea id="memo-content" placeholder="内容 (支持 Markdown)" rows="5" style="width:100%;padding:12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;margin-top:10px;resize:vertical;"></textarea>
+    <span class="auto-save" id="auto-save-indicator">✅ 已自动保存</span>
+</form>
+{% endblock %}
+{% block scripts %}<script src="/static/js/memo.js"></script>{% endblock %}

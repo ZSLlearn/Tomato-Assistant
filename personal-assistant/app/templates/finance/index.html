@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}收支记账{% endblock %}
+{% block content %}
+<h1>💰 收支记账</h1>
+<div class="summary-cards" id="summary"></div>
+
+<div class="quick-add-card">
+    <div style="display:flex;gap:10px;align-items:center;margin-bottom:12px;">
+        <button id="btn-expense" class="type-toggle active" onclick="setType('expense')" style="flex:1;padding:10px;border-radius:8px;border:2px solid var(--danger);background:#fff;color:var(--danger);font-size:15px;font-weight:600;cursor:pointer;">🔻 支出</button>
+        <button id="btn-income" class="type-toggle" onclick="setType('income')" style="flex:1;padding:10px;border-radius:8px;border:2px solid var(--success);background:#fff;color:var(--success);font-size:15px;font-weight:600;cursor:pointer;">🔺 收入</button>
+    </div>
+    <form id="record-form" style="box-shadow:none;padding:0;margin:0;">
+        <input type="hidden" id="type" value="expense">
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+            <input type="number" id="amount" placeholder="金额" step="0.01" min="0.01" autofocus
+                   style="flex:1;min-width:120px;font-size:20px;font-weight:600;padding:12px;">
+            <select id="category_id" style="flex:1;min-width:140px;padding:12px;font-size:14px;"></select>
+            <input type="date" id="date" style="flex:0;min-width:130px;padding:12px;">
+            <button type="submit" style="padding:12px 24px;font-size:15px;font-weight:600;">✓ 保存</button>
+        </div>
+    </form>
+    <div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;" id="quick-amounts">
+        <button onclick="quickAmount(10)" class="chip">¥10</button>
+        <button onclick="quickAmount(20)" class="chip">¥20</button>
+        <button onclick="quickAmount(30)" class="chip">¥30</button>
+        <button onclick="quickAmount(50)" class="chip">¥50</button>
+        <button onclick="quickAmount(100)" class="chip">¥100</button>
+        <button onclick="quickAmount(200)" class="chip">¥200</button>
+        <button onclick="quickAmount(500)" class="chip">¥500</button>
+        <input type="text" id="note" placeholder="✏️ 备注（回车保存）" style="flex:1;min-width:100px;border:1px solid var(--border);border-radius:20px;padding:6px 14px;font-size:13px;">
+    </div>
+</div>
+
+<h3 style="margin:20px 0 10px;">📋 账单记录</h3>
+<div id="records-container">
+    <table id="records-table"><thead><tr><th>日期</th><th>分类</th><th>金额</th><th>备注</th><th>操作</th></tr></thead><tbody></tbody></table>
+</div>
+{% endblock %}
+{% block scripts %}<script src="/static/js/finance.js"></script>{% endblock %}

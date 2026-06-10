@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}健康管理{% endblock %}
+{% block content %}
+<h1>❤️ 健康管理</h1>
+<div class="summary-cards" id="dashboard"></div>
+<div class="tabs">
+    <button data-tab="weight" class="active">⚖️ 体重</button>
+    <button data-tab="exercise">🏃 运动</button>
+    <button data-tab="water">💧 饮水</button>
+    <button data-tab="sleep">😴 睡眠</button>
+</div>
+<form id="health-form" style="box-shadow:none;padding:0;margin:0;">
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;" id="form-fields">
+        <input type="text" id="val" placeholder="数值" style="flex:1;min-width:120px;font-size:15px;padding:12px;">
+        <span id="extra-field"></span>
+        <input type="date" id="fdate" style="padding:12px;">
+        <input type="text" id="fnote" placeholder="备注" style="padding:12px;">
+        <button type="submit" style="padding:12px 20px;font-size:14px;font-weight:600;">✓ 保存</button>
+    </div>
+    <div class="quick-actions" id="quick-actions"></div>
+</form>
+<div id="health-table-wrap" style="margin-top:16px;"><table><thead></thead><tbody id="health-table-body"></tbody></table></div>
+{% endblock %}
+{% block scripts %}<script src="/static/js/health.js"></script>{% endblock %}

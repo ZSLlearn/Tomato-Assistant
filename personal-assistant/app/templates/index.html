@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}个人助手 - 首页{% endblock %}
+{% block content %}
+<h1>🏠 仪表盘</h1>
+<p style="color:var(--text-muted);margin-bottom:20px;">欢迎使用个人助手，左侧 AI 对话面板可随时提问和操作。</p>
+
+<div class="summary-cards" id="dashboard-cards">
+    <div class="card"><div class="value" id="dash-balance">--</div><div class="label">本月结余</div></div>
+    <div class="card"><div class="value" id="dash-weight">--</div><div class="label">最近体重</div></div>
+    <div class="card"><div class="value" id="dash-events">--</div><div class="label">今日日程</div></div>
+    <div class="card"><div class="value" id="dash-notes">--</div><div class="label">笔记总数</div></div>
+</div>
+
+<div style="display:flex;gap:16px;">
+    <div style="flex:1;">
+        <h3>📋 即将到来的日程</h3>
+        <ul id="upcoming-events" style="list-style:none;padding:0;"></ul>
+    </div>
+    <div style="flex:1;">
+        <h3>📌 置顶笔记</h3>
+        <ul id="pinned-notes" style="list-style:none;padding:0;"></ul>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+    try {
+        const now = new Date();
+        const [finResp, healthResp, schedResp, memoResp] = await Promise.all([
+            api(`/finance/api/summary?year=${now.getFullYear()}&month=${now.getMonth()+1}`),
+            api('/health/api/dashboard'),
+            api(`/schedule/api/events?date_from=${now.toISOString().slice(0,10)}`),
+            api('/memo/api/notes')
+        ]);
+        if (finResp.code === 200) {
+            document.getElementById('dash-balance').textContent = finResp.data.balance.toFixed(2);
+        }
+        if (healthResp.code === 200) {
+            document.getElementById('dash-weight').textContent = (healthResp.data.weight || '--') + ' kg';
+        }
+        if (schedResp.code === 200) {
+            document.getElementById('dash-events').textContent = schedResp.data.length + ' 个';
+            const ul = document.getElementById('upcoming-events');
+            schedResp.data.slice(0, 5).forEach(ev => {
+                const li = document.createElement('li');
+                li.style.cssText = 'padding:6px 0;border-bottom:1px solid var(--border);font-size:14px;';
+                li.textContent = `🕐 ${ev.start_time} - ${ev.title}`;
+                ul.appendChild(li);
+            });
+        }
+        if (memoResp.code === 200) {
+            const notes = memoResp.data;
+            document.getElementById('dash-notes').textContent = notes.length + ' 篇';
+            const ul = document.getElementById('pinned-notes');
+            notes.filter(n => n.is_pinned).slice(0, 5).forEach(n => {
+                const li = document.createElement('li');
+                li.style.cssText = 'padding:6px 0;border-bottom:1px solid var(--border);font-size:14px;';
+                li.textContent = '📌 ' + n.title;
+                ul.appendChild(li);
+            });
+        }
+    } catch (e) {
+        console.error(e);
+    }
+});
+</script>
+{% endblock %}
