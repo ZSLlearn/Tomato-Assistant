@@ -43,6 +43,8 @@ class MemoService:
         r = self.db.execute("SELECT * FROM memo_notes WHERE id=?", (note_id,)).fetchone()
         if not r:
             raise ValueError("笔记不存在")
+        if "title" in kwargs and not kwargs["title"].strip():
+            raise ValueError("标题不能为空")
         kwargs["updated_at"] = datetime.now().isoformat()
         sets = ", ".join(f"{k}=?" for k in kwargs)
         self.db.execute(

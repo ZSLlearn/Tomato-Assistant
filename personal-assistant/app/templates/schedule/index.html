@@ -1,29 +1,42 @@
 {% extends "base.html" %}
 {% block title %}日程安排{% endblock %}
 {% block content %}
-<h1>📅 日程安排</h1>
-<form id="schedule-form" style="flex-direction:column;align-items:stretch;">
-    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-        <input type="text" id="title" placeholder="日程标题" style="flex:1;min-width:200px;font-size:15px;padding:12px;" autofocus>
-        <select id="category" style="padding:12px;"><option value="个人">👤 个人</option><option value="工作">💼 工作</option><option value="紧急">🔴 紧急</option></select>
-        <select id="priority" style="padding:12px;"><option value="2">🟡 普通</option><option value="1">🔴 高优先</option><option value="3">🟢 低优先</option></select>
-        <button type="submit" style="padding:12px 24px;font-size:15px;font-weight:600;">✓ 添加</button>
+<header class="page-header">
+    <h1>日程安排</h1>
+    <p class="subtitle">管理个人和工作日程，按优先级排序</p>
+</header>
+
+<form id="schedule-form" class="form-block">
+    <div class="form-row" style="margin-bottom:8px;">
+        <input type="text" id="title" placeholder="日程标题" style="flex:1;min-width:180px;" autofocus>
+        <select id="category">
+            <option value="个人">个人</option>
+            <option value="工作">工作</option>
+            <option value="紧急">紧急</option>
+        </select>
+        <select id="priority">
+            <option value="2">普通</option>
+            <option value="1">高优先</option>
+            <option value="3">低优先</option>
+        </select>
+        <button type="submit" class="btn btn-primary">添加日程</button>
     </div>
-    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-        <input type="datetime-local" id="start_time" style="padding:10px;flex:1;min-width:180px;">
-        <span style="color:var(--text-muted);">→</span>
-        <input type="datetime-local" id="end_time" style="padding:10px;flex:1;min-width:180px;">
+    <div class="form-row">
+        <input type="datetime-local" id="start_time" style="flex:1;min-width:170px;">
+        <span style="color:var(--muted);font-size:var(--text-sm);">至</span>
+        <input type="datetime-local" id="end_time" style="flex:1;min-width:170px;">
         <div class="duration-btns">
-            <button type="button" onclick="setDuration(15)">+15min</button>
-            <button type="button" onclick="setDuration(30)">+30min</button>
-            <button type="button" onclick="setDuration(60)">+1h</button>
-            <button type="button" onclick="setDuration(120)">+2h</button>
+            <button type="button" onclick="setDuration(15)">15分</button>
+            <button type="button" onclick="setDuration(30)">30分</button>
+            <button type="button" onclick="setDuration(60)">1小时</button>
+            <button type="button" onclick="setDuration(120)">2小时</button>
         </div>
     </div>
 </form>
-<table style="margin-top:16px;">
+
+<table>
     <thead><tr><th>标题</th><th>开始</th><th>结束</th><th>分类</th><th>优先级</th><th>状态</th><th>操作</th></tr></thead>
     <tbody id="events-body"></tbody>
 </table>
 {% endblock %}
-{% block scripts %}<script src="/static/js/schedule.js"></script>{% endblock %}
+{% block scripts %}<script src="/static/js/schedule.js?v=5"></script>{% endblock %}

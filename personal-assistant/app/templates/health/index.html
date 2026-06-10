@@ -1,24 +1,47 @@
 {% extends "base.html" %}
 {% block title %}健康管理{% endblock %}
 {% block content %}
-<h1>❤️ 健康管理</h1>
+<header class="page-header">
+    <h1>健康管理</h1>
+    <p class="subtitle">追踪体重、运动、饮水和睡眠数据</p>
+</header>
+
 <div class="summary-cards" id="dashboard"></div>
+
 <div class="tabs">
     <button data-tab="weight" class="active">⚖️ 体重</button>
     <button data-tab="exercise">🏃 运动</button>
     <button data-tab="water">💧 饮水</button>
     <button data-tab="sleep">😴 睡眠</button>
 </div>
-<form id="health-form" style="box-shadow:none;padding:0;margin:0;">
-    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;" id="form-fields">
-        <input type="text" id="val" placeholder="数值" style="flex:1;min-width:120px;font-size:15px;padding:12px;">
+
+<form id="health-form" class="form-block">
+    <div class="form-row" id="form-fields">
+        <input type="text" id="val" placeholder="数值" style="flex:1;min-width:120px;">
         <span id="extra-field"></span>
-        <input type="date" id="fdate" style="padding:12px;">
-        <input type="text" id="fnote" placeholder="备注" style="padding:12px;">
-        <button type="submit" style="padding:12px 20px;font-size:14px;font-weight:600;">✓ 保存</button>
+        <input type="date" id="fdate">
+        <input type="text" id="fnote" placeholder="备注">
+        <button type="submit" class="btn btn-primary">保存</button>
     </div>
-    <div class="quick-actions" id="quick-actions"></div>
+    <div class="form-row" id="quick-actions"></div>
 </form>
-<div id="health-table-wrap" style="margin-top:16px;"><table><thead></thead><tbody id="health-table-body"></tbody></table></div>
+
+<!-- Chart Section -->
+<div class="health-charts" id="health-charts" style="display:flex;gap:16px;margin:20px 0;flex-wrap:wrap;">
+    <div style="flex:1;min-width:300px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;">
+        <h3 id="chart-title" style="font-size:var(--text-base);margin-bottom:12px;">体重趋势</h3>
+        <canvas id="health-chart" height="200"></canvas>
+    </div>
+    <div style="flex:1;min-width:240px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;" id="stats-panel">
+        <h3 style="font-size:var(--text-base);margin-bottom:12px;">统计</h3>
+        <div id="stats-content" style="font-size:var(--text-sm);color:var(--muted);"></div>
+    </div>
+</div>
+
+<!-- Records Table -->
+<div style="margin-top:16px;">
+    <h3 style="font-size:var(--text-base);margin-bottom:8px;" id="table-title">记录列表</h3>
+    <table><thead id="health-thead"></thead><tbody id="health-table-body"></tbody></table>
+</div>
 {% endblock %}
-{% block scripts %}<script src="/static/js/health.js"></script>{% endblock %}
+{% block scripts %}<script src="/static/js/health.js?v=6"></script>{% endblock %}

@@ -104,10 +104,10 @@ class HealthService:
     # === 睡眠 ===
 
     def record_sleep(self, start_time, end_time, quality=3, date=""):
-        if start_time >= end_time:
-            raise ValueError("起床时间必须晚于入睡时间")
         if quality < 1 or quality > 5:
             raise ValueError("睡眠质量必须在1-5之间")
+        if not self._is_valid_sleep_time(start_time, end_time):
+            raise ValueError("起床时间必须晚于入睡时间")
         cur = self.db.execute(
             "INSERT INTO health_sleep (start_time, end_time, quality, date) VALUES (?,?,?,?)",
             (start_time, end_time, quality, date))
@@ -145,6 +145,45 @@ class HealthService:
         self.db.execute("DELETE FROM health_sleep WHERE id=?", (record_id,))
         self.db.commit()
         return True
+
+    @staticmethod
+    def _is_valid_sleep_time(start_time, end_time):
+        """Validate that start_time is before end_time, handling various formats.
+        Supports: 'HH:MM', 'YYYY-MM-DD HH:MM', and ISO format.
+        """
+        from datetime import datetime
+        # Try to parse as full datetime first
+        formats = [
+            "%Y-%m-%d %H:%M",     # 2026-06-11 23:00
+            "%Y-%m-%dT%H:%M",     # 2026-06-11T23:00
+            "%Y-%m-%d %H:%M:%S",  # 2026-06-11 23:00:00
+            "%Y-%m-%dT%H:%M:%S",  # 2026-06-11T23:00:00
+        ]
+        for fmt in formats:
+            try:
+                st = datetime.strptime(start_time, fmt)
+                et = datetime.strptime(end_time, fmt)
+                return st < et
+            except ValueError:
+                continue
+        # Fallback: treat as pure time strings (e.g., '23:00', '07:00')
+        for fmt in ("%H:%M", "%H:%M:%S"):
+            try:
+                st = datetime.strptime(start_time, fmt)
+                et = datetime.strptime(end_time, fmt)
+                if st < et:
+                    return True  # Same-day sleep (e.g., 07:00 to 22:00)
+                # start >= end: likely overnight sleep (e.g., 23:00 to 07:00 = 8h)
+                # Calculate overnight duration in hours
+                start_minutes = st.hour * 60 + st.minute
+                end_minutes = et.hour * 60 + et.minute
+                overnight_hours = ((24 * 60 - start_minutes) + end_minutes) / 60
+                # Valid sleep range: 2-18 hours
+                return 2 <= overnight_hours <= 18
+            except ValueError:
+                continue
+        # Last resort: lexical comparison
+        return start_time < end_time
 
     # === 看板 ===
 

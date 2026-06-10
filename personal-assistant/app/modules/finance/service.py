@@ -67,6 +67,8 @@ class FinanceService:
         ).fetchone()
         if not cat:
             raise ValueError("分类不存在")
+        if cat["type"] != type:
+            raise ValueError(f"分类'{cat['name']}'的类型为{cat['type']}，与记录类型{type}不匹配")
         created_at = datetime.now().isoformat()
         cur = self.db.execute(
             "INSERT INTO finance_records (category_id, type, amount, date, note, created_at) "

@@ -1,29 +1,37 @@
 {% extends "base.html" %}
 {% block title %}备忘录{% endblock %}
 {% block content %}
-<h1>📝 备忘录</h1>
-<div style="display:flex;gap:10px;margin-bottom:16px;">
-    <input type="text" id="search-input" placeholder="🔍 搜索笔记..." style="flex:1;padding:10px;border:1px solid var(--border);border-radius:8px;font-size:14px;">
-    <button id="btn-new" onclick="newNote()" style="padding:10px 20px;font-size:14px;font-weight:600;white-space:nowrap;">✏️ 新建笔记</button>
+<header class="page-header">
+    <h1>备忘录</h1>
+    <p class="subtitle">随时记录想法，支持 Markdown 格式</p>
+</header>
+
+<div class="form-row" style="margin-bottom:16px;">
+    <input type="text" id="search-input" placeholder="搜索笔记…" style="flex:1;">
+    <button id="btn-new" class="btn btn-primary" onclick="newNote()">新建笔记</button>
 </div>
+
 <div class="memo-layout">
     <div class="memo-list" id="memo-list"></div>
     <div class="memo-detail" id="memo-detail">
-        <div style="display:flex;justify-content:space-between;align-items:center;">
-            <h2 id="memo-title-display">选择笔记</h2>
-            <button id="btn-pin" class="btn-pin" onclick="togglePin()" style="display:none;" title="切换置顶">📌</button>
+        <div class="memo-detail-header">
+            <h2 id="memo-title-display" style="margin:0;">选择笔记</h2>
+            <button id="btn-pin" class="btn-pin" onclick="togglePin()" style="display:none;" title="切换置顶">
+                <svg width="15" height="15" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7.5 1.5L9 4l3 .5-2 2 .5 6L7.5 10l-3 2.5.5-6-2-2 3-.5 1.5-2.5z"/></svg>
+            </button>
         </div>
         <div id="memo-content-display" style="min-height:100px;"></div>
     </div>
 </div>
-<form id="memo-form" style="margin-top:16px;flex-direction:column;align-items:stretch;">
-    <div style="display:flex;gap:10px;">
-        <input type="text" id="memo-title" placeholder="笔记标题" style="flex:1;font-size:15px;padding:12px;">
-        <input type="text" id="memo-tags" placeholder="标签,逗号分隔" style="flex:1;padding:12px;">
-        <button type="submit" style="padding:12px 24px;font-size:14px;font-weight:600;">💾 保存</button>
+
+<form id="memo-form" class="form-block" style="margin-top:16px;">
+    <div class="form-row" style="margin-bottom:8px;">
+        <input type="text" id="memo-title" placeholder="笔记标题" style="flex:1;">
+        <input type="text" id="memo-tags" placeholder="标签，逗号分隔" style="flex:1;">
+        <button type="submit" class="btn btn-primary">保存</button>
     </div>
-    <textarea id="memo-content" placeholder="内容 (支持 Markdown)" rows="5" style="width:100%;padding:12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;margin-top:10px;resize:vertical;"></textarea>
-    <span class="auto-save" id="auto-save-indicator">✅ 已自动保存</span>
+    <textarea id="memo-content" placeholder="内容（支持 Markdown）" rows="5"></textarea>
+    <span class="auto-save" id="auto-save-indicator">已自动保存</span>
 </form>
 {% endblock %}
-{% block scripts %}<script src="/static/js/memo.js"></script>{% endblock %}
+{% block scripts %}<script src="/static/js/memo.js?v=5"></script>{% endblock %}

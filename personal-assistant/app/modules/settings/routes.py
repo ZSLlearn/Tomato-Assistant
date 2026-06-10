@@ -27,3 +27,33 @@ def config():
         return jsonify({"code": 400, "message": "配置键不能为空", "data": None}), 400
     _svc().set(key, value)
     return jsonify({"code": 200, "message": "保存成功", "data": {"key": key, "value": value}})
+
+
+@bp.route('/api/detect-city')
+def detect_city():
+    """Detect user city via IP geolocation (ip-api.com, free, no key needed)."""
+    import requests
+    import logging
+    logger = logging.getLogger(__name__)
+    try:
+        # Use client IP or fallback to the public API
+        client_ip = request.headers.get('X-Forwarded-For', '').split(',')[0].strip()
+        if not client_ip:
+            client_ip = request.remote_addr
+        # ip-api.com free tier: 45 req/min, no API key
+        resp = requests.get(f'http://ip-api.com/json/{client_ip}?lang=zh-CN',
+                            timeout=5)
+        resp.raise_for_status()
+        data = resp.json()
+        if data.get('status') == 'success':
+            city = data.get('city', '')
+            region = data.get('regionName', '')
+            country = data.get('country', '')
+            return jsonify({
+                "code": 200, "message": "ok",
+                "data": {"city": city, "region": region, "country": country,
+                         "display": f"{city}，{region}，{country}"}
+            })
+    except Exception as e:
+        logger.warning(f"IP城市定位失败: {e}")
+    return jsonify({"code": 503, "message": "定位失败", "data": None})

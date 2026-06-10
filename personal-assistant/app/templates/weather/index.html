@@ -1,13 +1,21 @@
 {% extends "base.html" %}
 {% block title %}天气查询{% endblock %}
 {% block content %}
-<h1>🌤 天气查询</h1>
+<header class="page-header">
+    <h1>天气查询</h1>
+    <p class="subtitle">查看任意城市的实时天气与预报</p>
+</header>
+
 <div class="input-group" style="margin-bottom:20px;">
-    <input type="text" id="city-input" placeholder="搜索城市..." style="flex:1;">
-    <button onclick="searchWeather()">查询</button>
+    <input type="text" id="city-input" placeholder="搜索城市…" style="flex:1;">
+    <button class="btn btn-primary" onclick="searchWeather()">查询</button>
 </div>
+
 <div id="weather-result">
-    <p style="color:var(--text-muted);">输入城市名查询天气</p>
+    <div class="empty-state">
+        <p>输入城市名称查询天气</p>
+        <p class="hint">支持全球主要城市</p>
+    </div>
 </div>
 {% endblock %}
-{% block scripts %}<script src="/static/js/weather.js"></script>{% endblock %}
+{% block scripts %}<script src="/static/js/weather.js?v=5"></script>{% endblock %}

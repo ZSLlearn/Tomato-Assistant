@@ -1,10 +1,14 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request as flask_request
 from app.database import init_db
 
 
 def create_app():
     app = Flask(__name__)
     init_db()
+
+    @app.context_processor
+    def inject_request():
+        return dict(request=flask_request)
 
     @app.route('/')
     def index():

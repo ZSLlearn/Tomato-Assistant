@@ -1,33 +1,40 @@
 {% extends "base.html" %}
 {% block title %}设置{% endblock %}
 {% block content %}
-<h1>⚙️ 设置</h1>
+<header class="page-header">
+    <h1>设置</h1>
+    <p class="subtitle">配置 AI 接口与偏好项</p>
+</header>
 
 <div class="settings-section">
-    <h3>🤖 AI 助手配置</h3>
-    <p style="font-size:13px;color:var(--text-muted);margin-bottom:8px;">DeepSeek API KEY（用户自行配置）</p>
+    <h3>AI 助手配置</h3>
+    <p class="desc">连接 DeepSeek API，由用户自行提供密钥</p>
     <div class="input-group">
-        <input type="password" id="api-key-input" placeholder="sk-...">
-        <button onclick="toggleKeyVisibility()">👁</button>
-        <button onclick="saveApiKey()">保存</button>
-        <button onclick="testConnection()">测试连接</button>
+        <input type="password" id="api-key-input" placeholder="sk-..." style="flex:1;">
+        <button class="btn btn-secondary" onclick="toggleKeyVisibility()">显示</button>
+        <button class="btn btn-primary" onclick="saveApiKey()">保存</button>
+        <button class="btn btn-secondary" onclick="testConnection()">测试连接</button>
     </div>
     <span id="api-status"></span>
-    <a href="https://platform.deepseek.com/" target="_blank" style="font-size:12px;color:var(--primary);display:block;margin-top:8px;">🔗 如何获取 DeepSeek API KEY？</a>
+    <a href="https://platform.deepseek.com/" target="_blank" style="font-size:var(--text-xs);display:inline-block;margin-top:8px;">
+        如何获取 DeepSeek API Key
+    </a>
 </div>
 
 <div class="settings-section">
-    <h3>🌍 偏好设置</h3>
+    <h3>偏好设置</h3>
     <div class="input-group">
-        <label>默认城市：</label>
+        <label style="font-size:var(--text-sm);white-space:nowrap;">默认城市</label>
         <input type="text" id="default-city" placeholder="北京">
-        <button onclick="saveCity()">保存</button>
+        <button class="btn btn-secondary" onclick="detectCity()" title="IP 自动定位">📍 定位</button>
+        <button class="btn btn-primary" onclick="saveCity()">保存</button>
     </div>
+    <span id="city-status" style="font-size:var(--text-xs);color:var(--muted);"></span>
 </div>
 
 <div class="settings-section">
-    <h3>ℹ️ 关于</h3>
-    <p style="font-size:13px;color:var(--text-muted);">个人助手 v1.0 | 天气数据：Open-Meteo | AI 驱动：DeepSeek</p>
+    <h3>关于</h3>
+    <p style="font-size:var(--text-sm);color:var(--muted);">个人助手 v1.0 &middot; 天气数据 Open-Meteo &middot; AI 驱动 DeepSeek</p>
 </div>
 {% endblock %}
 {% block scripts %}
@@ -36,7 +43,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const resp = await api('/settings/api/config');
     if (resp.data.deepseek_api_key) {
         document.getElementById('api-key-input').value = resp.data.deepseek_api_key;
-        document.getElementById('api-status').innerHTML = '<span class="api-status ok">✅ 已配置</span>';
+        document.getElementById('api-status').innerHTML = '<span class="api-status ok">已配置</span>';
     }
     if (resp.data.default_city) {
         document.getElementById('default-city').value = resp.data.default_city;
@@ -45,7 +52,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 function toggleKeyVisibility() {
     const inp = document.getElementById('api-key-input');
+    const btn = event.target;
     inp.type = inp.type === 'password' ? 'text' : 'password';
+    btn.textContent = inp.type === 'password' ? '显示' : '隐藏';
 }
 
 async function saveApiKey() {
@@ -53,7 +62,7 @@ async function saveApiKey() {
     if (!key) { showToast('请输入 API KEY', true); return; }
     if (!key.startsWith('sk-')) { showToast('API KEY 应以 sk- 开头', true); return; }
     await api('/settings/api/config', 'PUT', { key: 'deepseek_api_key', value: key });
-    document.getElementById('api-status').innerHTML = '<span class="api-status ok">✅ 已保存</span>';
+    document.getElementById('api-status').innerHTML = '<span class="api-status ok">已保存</span>';
     showToast('API KEY 已保存');
 }
 
@@ -61,21 +70,37 @@ async function testConnection() {
     const key = document.getElementById('api-key-input').value.trim();
     if (!key) { showToast('请先输入 API KEY', true); return; }
     const statusEl = document.getElementById('api-status');
-    statusEl.innerHTML = '<span class="api-status">⏳ 测试中...</span>';
+    statusEl.innerHTML = '<span class="api-status info">测试中…</span>';
     const resp = await api('/ai/test-connection', 'POST', { api_key: key });
     if (resp.data.ok) {
-        statusEl.innerHTML = '<span class="api-status ok">✅ 连接成功</span>';
+        statusEl.innerHTML = '<span class="api-status ok">连接成功</span>';
         showToast('连接成功');
     } else {
-        statusEl.innerHTML = '<span class="api-status fail">❌ 连接失败: ' + resp.message + '</span>';
+        statusEl.innerHTML = '<span class="api-status fail">连接失败: ' + resp.message + '</span>';
         showToast('连接失败', true);
+    }
+}
+
+async function detectCity() {
+    const statusEl = document.getElementById('city-status');
+    statusEl.textContent = '定位中…';
+    const resp = await api('/settings/api/detect-city');
+    if (resp.code === 200 && resp.data) {
+        document.getElementById('default-city').value = resp.data.city || resp.data.display;
+        statusEl.textContent = '已定位到 ' + (resp.data.display || resp.data.city);
+        showToast('已定位');
+    } else {
+        statusEl.textContent = '定位失败，请手动输入';
+        showToast('定位失败', true);
     }
 }
 
 async function saveCity() {
     const city = document.getElementById('default-city').value.trim();
+    if (!city) { showToast('请输入城市名', true); return; }
     await api('/settings/api/config', 'PUT', { key: 'default_city', value: city });
-    showToast('已保存');
+    document.getElementById('city-status').textContent = '已保存';
+    showToast('城市已保存');
 }
 </script>
 {% endblock %}
